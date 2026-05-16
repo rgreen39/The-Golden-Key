@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-cream: #FAFAF7;
+  --color-gold: #C9A84C;
+  --color-dark-gray: #2D2D2D;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-dark-gray);
+  font-family: var(--font-heebo), sans-serif;
+}
+
+/* RTL base styles */
+* {
+  box-sizing: border-box;
+}
+
+/* Smooth transitions for accordion panels */
+.accordion-content {
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+/* ── Hearts animation for completion screen ─────────────────────────────── */
+@keyframes floatHeart {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) scale(0.6);
+    opacity: 0;
+  }
+}
+
+.heart-particle {
+  position: fixed;
+  bottom: -60px;
+  font-size: 1.5rem;
+  animation: floatHeart linear infinite;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* Timer countdown ring */
+@keyframes timerRing {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 283;
+  }
+}
