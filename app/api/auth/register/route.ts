@@ -30,7 +30,9 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json({ id: user.id, email: user.email }, { status: 201 })
-  } catch {
-    return NextResponse.json({ error: 'שגיאה בשרת' }, { status: 500 })
+  } catch (error) {
+    console.error('Register error:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: 'שגיאה בשרת', details: message }, { status: 500 })
   }
 }
