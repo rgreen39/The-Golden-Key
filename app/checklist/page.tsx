@@ -61,7 +61,7 @@ const CHECKLIST_ITEMS = [
     id: 'he',
     letter: 'ה',
     keyword: 'הגדרת כמות',
-    text: '!זהו, עברת על הכל, תארגני לעצמך צלחת מפנקת',
+    text: 'זכרי להגדיר כמות של מה שתבחרי לאכול',
     expandedContent: undefined,
   },
   {
