@@ -61,7 +61,7 @@ export default function ChecklistItem({
       >
         {/* Letter badge + keyword — right side */}
         <div className="flex flex-col items-center shrink-0 w-16" aria-hidden="true">
-          <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center mb-0.5">
+          <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center mb-0.5 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200 cursor-pointer">
             <span className="text-white font-bold text-sm leading-none">{letter}</span>
           </div>
           {keyword && (
