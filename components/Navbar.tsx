@@ -124,9 +124,14 @@ export default function Navbar() {
                     className="rounded-full border border-gold/40"
                   />
                 )}
+                {session.user.name && (
+                  <span className="text-sm text-dark-gray/70">
+                    שלום ל{session.user.name}
+                  </span>
+                )}
                 <button
                   type="button"
-                  onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                  onClick={() => signOut({ callbackUrl: '/auth/signin', redirect: true })}
                   aria-label="התנתק מהחשבון"
                   className="text-sm text-dark-gray hover:text-gold transition-colors px-2 py-1 focus:outline-none focus:ring-2 focus:ring-gold/40 rounded-sm"
                 >

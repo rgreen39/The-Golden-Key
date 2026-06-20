@@ -29,7 +29,8 @@ export default function SignInPage() {
     if (result?.error) {
       setError('מייל או סיסמה שגויים')
     } else {
-      router.push('/checklist')
+      router.refresh()
+      router.push('/')
     }
   }
 
@@ -65,7 +66,8 @@ export default function SignInPage() {
       setError('ההרשמה הצליחה אך הכניסה נכשלה — נסי להתחבר')
       setMode('signin')
     } else {
-      router.push('/checklist')
+      router.refresh()
+      router.push('/')
     }
   }
 
