@@ -8,8 +8,15 @@ interface Meal {
   foodChoice: string | null
 }
 
+interface Overcome {
+  id: string
+  createdAt: string
+  checklistKey: string
+}
+
 interface WeeklyBoardProps {
   meals: Meal[]
+  overcomes: Overcome[]
   weekStart: Date
 }
 
@@ -20,6 +27,16 @@ const HOUR_END = 24    // 24:00
 const TOTAL_HOURS = HOUR_END - HOUR_START  // 18 hours
 
 const HEBREW_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
+
+const CHECKLIST_NAMES: Record<string, string> = {
+  mem: 'מים',
+  resh: 'רוגע',
+  pe: 'פנאי',
+  shin: 'שינה',
+  zayin: 'זרימה',
+  he: 'הגדרת כמות',
+  bet: 'בתאבון',
+}
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -53,7 +70,42 @@ function formatDate(date: Date): string {
   return date.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric' })
 }
 
-// ─── Tooltip ───────────────────────────────────────────────────────────────────
+// ─── Overcome Tooltip ──────────────────────────────────────────────────────────
+
+interface OvercomeTooltipProps {
+  overcome: Overcome
+  onClose: () => void
+}
+
+function OvercomeTooltip({ overcome, onClose }: OvercomeTooltipProps) {
+  const date = new Date(overcome.createdAt)
+  const checklistName = CHECKLIST_NAMES[overcome.checklistKey] || overcome.checklistKey
+  return (
+    <div
+      className="absolute z-20 bg-amber-50 border border-gold/60 rounded-lg shadow-lg p-3 text-right min-w-[160px] text-sm"
+      style={{ top: '110%', right: '50%', transform: 'translateX(50%)' }}
+      role="tooltip"
+      aria-label="פרטי התגברות"
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="סגור פרטי התגברות"
+        className="absolute top-1 left-1 text-dark-gray/40 hover:text-gold text-xs focus:outline-none"
+      >
+        ✕
+      </button>
+      <p className="font-bold text-gold mb-1">⚖️ התגברות</p>
+      <p className="font-medium text-dark-gray mb-1">{formatDate(date)}</p>
+      <p className="text-dark-gray/70 mb-1">{formatTime(date)}</p>
+      <p className="text-dark-gray/80 border-t border-gold/20 pt-1 mt-1">
+        סעיף: {checklistName}
+      </p>
+    </div>
+  )
+}
+
+// ─── Meal Tooltip ──────────────────────────────────────────────────────────────
 
 interface TooltipProps {
   meal: Meal
@@ -88,6 +140,36 @@ function MealTooltip({ meal, onClose }: TooltipProps) {
   )
 }
 
+// ─── Overcome dot ──────────────────────────────────────────────────────────────
+
+interface OvercomeDotProps {
+  overcome: Overcome
+}
+
+function OvercomeDot({ overcome }: OvercomeDotProps) {
+  const [open, setOpen] = useState(false)
+  const date = new Date(overcome.createdAt)
+  const yPercent = getYPercent(date)
+  const checklistName = CHECKLIST_NAMES[overcome.checklistKey] || overcome.checklistKey
+
+  return (
+    <div
+      className="absolute"
+      style={{ top: `${yPercent}%`, left: '25%', transform: 'translate(-50%, -50%)' }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label={`התגברות בשעה ${formatTime(date)}: ${checklistName}`}
+        aria-expanded={open}
+        className="w-3 h-3 rounded-full bg-amber-400 border-2 border-white shadow hover:scale-125 transition-transform focus:outline-none focus:ring-2 focus:ring-amber-400/60"
+        title="⚖️ התגברות"
+      />
+      {open && <OvercomeTooltip overcome={overcome} onClose={() => setOpen(false)} />}
+    </div>
+  )
+}
+
 // ─── Meal dot ──────────────────────────────────────────────────────────────────
 
 interface MealDotProps {
@@ -118,7 +200,7 @@ function MealDot({ meal }: MealDotProps) {
 
 // ─── Main component ────────────────────────────────────────────────────────────
 
-export default function WeeklyBoard({ meals, weekStart }: WeeklyBoardProps) {
+export default function WeeklyBoard({ meals, overcomes, weekStart }: WeeklyBoardProps) {
   const days = getWeekDays(weekStart)
 
   // Hour labels on the Y axis
@@ -128,8 +210,20 @@ export default function WeeklyBoard({ meals, weekStart }: WeeklyBoardProps) {
     <div
       className="w-full overflow-x-auto"
       role="region"
-      aria-label="לוח ארוחות שבועי"
+      aria-label="לוח ארוחות והתגברויות שבועי"
     >
+      {/* Legend */}
+      <div className="flex gap-4 justify-center mb-4 text-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-gold border-2 border-white shadow"></div>
+          <span className="text-dark-gray/70">ארוחה</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-amber-400 border-2 border-white shadow"></div>
+          <span className="text-dark-gray/70">התגברות (⚖️ אונקיה)</span>
+        </div>
+      </div>
+
       <div className="min-w-[600px]">
         {/* Header row — day names */}
         <div className="flex">
@@ -165,6 +259,7 @@ export default function WeeklyBoard({ meals, weekStart }: WeeklyBoardProps) {
           {/* Day columns */}
           {days.map((day, i) => {
             const dayMeals = meals.filter((m) => isSameDay(new Date(m.createdAt), day))
+            const dayOvercomes = overcomes.filter((o) => isSameDay(new Date(o.createdAt), day))
             return (
               <div
                 key={i}
@@ -180,6 +275,11 @@ export default function WeeklyBoard({ meals, weekStart }: WeeklyBoardProps) {
                     style={{ top: `${((h - HOUR_START) / TOTAL_HOURS) * 100}%` }}
                     aria-hidden="true"
                   />
+                ))}
+
+                {/* Overcome dots */}
+                {dayOvercomes.map((overcome) => (
+                  <OvercomeDot key={overcome.id} overcome={overcome} />
                 ))}
 
                 {/* Meal dots */}

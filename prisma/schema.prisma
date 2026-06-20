@@ -57,6 +57,7 @@ model User {
   image         String?
   password      String?
   emailVerified DateTime?
+  points        Int            @default(0) // אונקיות - נקודות התגברות
   createdAt     DateTime       @default(now())
   accounts      Account[]
   sessions      Session[]
@@ -65,6 +66,7 @@ model User {
   dreamFoods    DreamFood[]
   falls         Fall[]
   weightEntries WeightEntry[]
+  overcomes     Overcome[]     // התגברויות
 }
 
 model Meal {
@@ -104,4 +106,12 @@ model WeightEntry {
   user      User     @relation(fields: [userId], references: [id])
   weight    Float
   createdAt DateTime @default(now())
+}
+
+model Overcome {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  checklistKey String   // מ/ר/פ/ש/ז/ה/ב - איזה סעיף בצ'קליסט
+  createdAt    DateTime @default(now())
 }

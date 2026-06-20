@@ -23,6 +23,7 @@ export default function Navbar() {
   const [currentPoem, setCurrentPoem] = useState('')
   const [weightOpen, setWeightOpen] = useState(false)
   const [shouldPromptWeight, setShouldPromptWeight] = useState(false)
+  const [points, setPoints] = useState(0)
 
   // Check if weight prompt is needed (only when logged in)
   useEffect(() => {
@@ -30,6 +31,15 @@ export default function Navbar() {
     fetch('/api/weight')
       .then(r => r.json())
       .then(d => setShouldPromptWeight(d.shouldPrompt ?? false))
+      .catch(() => {})
+  }, [status])
+
+  // Fetch user points (אונקיות)
+  useEffect(() => {
+    if (status !== 'authenticated') return
+    fetch('/api/user/points')
+      .then(r => r.json())
+      .then(d => setPoints(d.points ?? 0))
       .catch(() => {})
   }, [status])
 
@@ -115,6 +125,13 @@ export default function Navbar() {
               <span className="text-sm text-dark-gray/50 w-20 text-center" aria-live="polite">טוען...</span>
             ) : session?.user ? (
               <>
+                {/* Points (אונקיות) display */}
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gold/10 rounded-full border border-gold/30" title="אונקיות - נקודות התגברות">
+                  <span className="text-lg" aria-hidden="true">⚖️</span>
+                  <span className="text-sm font-bold text-gold">{points}</span>
+                  <span className="text-xs text-gold/70">אונקיות</span>
+                </div>
+                
                 {session.user.image && (
                   <Image
                     src={session.user.image}

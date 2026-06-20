@@ -158,6 +158,7 @@ export default function ChecklistPage() {
           {CHECKLIST_ITEMS.map((item) => (
             <ChecklistItem
               key={item.id}
+              checklistId={item.id}
               letter={item.letter}
               keyword={item.keyword}
               text={item.text}

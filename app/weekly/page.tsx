@@ -9,6 +9,12 @@ interface Meal {
   foodChoice: string | null
 }
 
+interface Overcome {
+  id: string
+  createdAt: string
+  checklistKey: string
+}
+
 function getWeekBounds(): { start: Date; end: Date } {
   const now = new Date()
   // Week starts on Sunday (day 0)
@@ -26,6 +32,7 @@ function getWeekBounds(): { start: Date; end: Date } {
 
 export default function WeeklyPage() {
   const [meals, setMeals] = useState<Meal[]>([])
+  const [overcomes, setOvercomes] = useState<Overcome[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
@@ -34,12 +41,20 @@ export default function WeeklyPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(
-          `/api/meals?from=${start.toISOString()}&to=${end.toISOString()}`
-        )
-        if (!res.ok) throw new Error()
-        const data = await res.json()
-        setMeals(data.meals ?? [])
+        const [mealsRes, overcomesRes] = await Promise.all([
+          fetch(`/api/meals?from=${start.toISOString()}&to=${end.toISOString()}`),
+          fetch(`/api/overcomes?from=${start.toISOString()}&to=${end.toISOString()}`)
+        ])
+        
+        if (!mealsRes.ok || !overcomesRes.ok) throw new Error()
+        
+        const [mealsData, overcomesData] = await Promise.all([
+          mealsRes.json(),
+          overcomesRes.json()
+        ])
+        
+        setMeals(mealsData.meals ?? [])
+        setOvercomes(overcomesData.overcomes ?? [])
       } catch {
         setError(true)
       } finally {
@@ -78,12 +93,12 @@ export default function WeeklyPage() {
 
         {!loading && !error && (
           <>
-            {meals.length === 0 ? (
+            {meals.length === 0 && overcomes.length === 0 ? (
               <p className="text-center text-dark-gray/50 py-12">
-                אין ארוחות רשומות השבוע עדיין.
+                אין ארוחות או התגברויות רשומות השבוע עדיין.
               </p>
             ) : (
-              <WeeklyBoard meals={meals} weekStart={start} />
+              <WeeklyBoard meals={meals} overcomes={overcomes} weekStart={start} />
             )}
           </>
         )}

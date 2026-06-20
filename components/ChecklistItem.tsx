@@ -10,6 +10,7 @@ interface ChecklistItemProps {
   expandedContent?: string
   checked: boolean
   onToggle: () => void
+  checklistId: string // מזהה הסעיף (mem, resh, pe, וכו')
 }
 
 export default function ChecklistItem({
@@ -19,6 +20,7 @@ export default function ChecklistItem({
   expandedContent,
   checked,
   onToggle,
+  checklistId,
 }: ChecklistItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const router = useRouter()
@@ -39,6 +41,23 @@ export default function ChecklistItem({
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       onToggle()
+    }
+  }
+
+  const handleOvercome = async () => {
+    try {
+      // שמירת התגברות - תשלח את המזהה של הסעיף
+      await fetch('/api/overcomes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ checklistKey: checklistId }),
+      })
+      // מעבר לדף not-eating
+      router.push('/not-eating')
+    } catch (error) {
+      console.error('Failed to save overcome:', error)
+      // גם אם יש שגיאה, עדיין עוברים לדף
+      router.push('/not-eating')
     }
   }
 
@@ -114,7 +133,7 @@ export default function ChecklistItem({
         <div className="flex justify-end px-4 pb-1">
           <button
             type="button"
-            onClick={() => router.push('/not-eating')}
+            onClick={handleOvercome}
             aria-label="בסוף לא — יציאה מהתהליך"
             title="חשבתי שאני רוצה לאכול אבל זה היה משהו אחר שהצלחתי לפתור"
             className="flex items-center gap-1.5 text-xs text-dark-gray/40 hover:text-dark-gray/70 transition-colors py-1 focus:outline-none group relative"
@@ -124,9 +143,9 @@ export default function ChecklistItem({
             </svg>
             בסוף לא
             {/* Tooltip - shows on hover */}
-            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-dark-gray/90 text-white text-xs rounded-md whitespace-normal max-w-xs text-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 shadow-lg">
+            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-dark-gray/95 text-white text-[10px] leading-snug rounded-lg whitespace-normal w-48 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 shadow-xl">
               חשבתי שאני רוצה לאכול אבל זה היה משהו אחר שהצלחתי לפתור
-              <span className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-dark-gray/90"></span>
+              <span className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-dark-gray/95"></span>
             </span>
           </button>
         </div>
